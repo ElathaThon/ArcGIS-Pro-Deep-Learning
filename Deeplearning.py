@@ -80,7 +80,7 @@ class ExportLabelObjects:
 		self.export(self.tile_size, self.stride, metadata_format, self.image_chip_format, out_folder)
 
 	def exportKitti(self):
-		out_folder = self.deeplearningProject.dir_labeled_objects + "/KITTI_T" + str(self.tile_size) + "_" + self.image_chip_format + "_" + self.randomNumeber()
+		out_folder = self.deeplearningProject.dir_labeled_objects + "/KITTI_T" + str(self.tile_size) + "_" + self.image_chip_format + "_" + self.raster_name + "_" + self.randomNumeber()
 		metadata_format = "KITTI_rectangles"
 
 		print("+\n| > Exportem KITTI({}) => tileSize: {}x{} / stride: {}x{}".format(self.image_chip_format, self.tile_size,self.tile_size, self.stride,self.stride))
