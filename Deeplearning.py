@@ -26,7 +26,7 @@ class DeeplearningProject:
 		self.dir_trained_models = self.project_path + "/models"
 
 	def __str__ (self):
-		return "+-\n| project_path => {}\n| dir_labeled_objects => {}\n| dir_trained_models => {}\n+-".format(self.project_path, self.dir_labeled_objects, self.dir_trained_models)
+		return "+------\n| project_path => {}\n| dir_labeled_objects => {}\n| dir_trained_models => {}\n+------".format(self.project_path, self.dir_labeled_objects, self.dir_trained_models)
 
 
 class ExportLabelObjects:
@@ -36,16 +36,15 @@ class ExportLabelObjects:
 
 	inRaster = "c:/test/InputRaster.tif" #La imatge o rastermosaic de entrada
 	FC_training_data = "c:/test/TrainingData.shp" #FC amb els poligons etiquetats
-
 	image_chip_format = "TIFF"
 	tile_size = 64
 	stride = 32 #sempre faig la mitat, el calculo diractament en el constructor
 
 	#metadata_format= "Labeled_Tiles" Ho defineixo directament dins de cada una de les funcions de export
 
-	output_nofeature_tiles= "ONLY_TILES_WITH_FEATURES"
 
 	#Default, pero ja estan OK
+	output_nofeature_tiles= "ONLY_TILES_WITH_FEATURES"
 	start_index = 0
 	classvalue_field = "Classvalue"
 	buffer_radius = 0
