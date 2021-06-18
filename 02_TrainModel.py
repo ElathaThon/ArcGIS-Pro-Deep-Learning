@@ -9,27 +9,42 @@ project.log(project)
 
 backbone_models = ["DENSENET201", "DENSENET121", "RESNET152", "VGG19"]
 
+
 #model_types = {{"model_type": "SSD", "metadata_format": "PASCAL"},{"model_type": "RETINANET", "metadata_format": "PASCAL"}}
 
 
-in_folder = r"E:\Feina_ProjecteGeoAI\imageChips\PASCAL_T256_TIFF_platges2017_5ffe863d"
+folder_labeled_elements = "E:/Feina_ProjecteGeoAI/imageChips/"
 pretrained_model = "" #r"E:\Feina_ProjecteGeoAI\models\SSD_DENSENET201_T256_Ep1_v0_1fc08f3a\SSD_DENSENET201_T256_Ep1_v0.emd"
 
+#elements_a_entrenar = ["PASCAL_T256_TIFF_platges2017_5ffe863d","PASCAL_T128_TIFF_platges2017_6e967bb1","PASCAL_T64_TIFF_platges2017_3921d523","PASCAL_T32_TIFF_platges2017_46416e32"]
+elements_a_entrenar = ["PASCAL_T256_TIFF_platges2017_5ffe863d","PASCAL_T128_TIFF_platges2017_6e967bb1","PASCAL_T64_TIFF_platges2017_3921d523","PASCAL_T32_TIFF_platges2017_46416e32"]
 
-max_epochs = 1
+
+max_epochs = 80
 learning_rate = "" #0.0003
 
-project.log("+-\n| Start training: ")
+project.log("\n| Start training: ")
 timer = Timer()
 
-model_type = "SSD"
-backbone_model = "DENSENET201"
+model_types = ["SSD","RETINANET"]
 
-trainer = TrainModel(project, max_epochs, model_type, learning_rate, pretrained_model, backbone_model, in_folder)
+for labeled_data in elements_a_entrenar:
 
-trainer.train()
+    in_folder = folder_labeled_elements + labeled_data
 
-str_fin = "FIN!!! => Total: {}".format(timer.stop())
+    for model_type in model_types:
+        for network in backbone_models:
+            project.log("| {} - {} => {}".format(model_type, network, in_folder))
+            trainer = TrainModel(project, max_epochs, model_type, learning_rate, pretrained_model, network, in_folder)
+            trainer.train()
+
+
+
+
+
+str_fin = "|\n FIN!!! => Total: {}\n+".format(timer.stop())
 project.log(str_fin)
+
+project.log("\n+-------------------------------------------------------+\n\n")
 
 input("--> Press enter to exit <--")

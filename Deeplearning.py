@@ -125,8 +125,8 @@ class TrainModel:
 
 	# Per defecte OK
 	freeze = "UNFREEZE_MODEL" #Descheck dona millor resultats pero triga més
-	validation_percent = 30
-	batch_size = 8 #Les imatges que es fan a l'hora contra més alt millor GPU s'ha de tenir. default = 2
+	validation_percent = 40
+	batch_size = 10 #Les imatges que es fan a l'hora contra més alt millor GPU s'ha de tenir. default = 2
 	arg = "grids '[4, 2, 1]';zooms '[0.7, 1.0, 1.3]';ratios '[[1, 1], [1, 0.5], [0.5, 1]]'"
 	stop_training = "STOP_TRAINING"
 
@@ -176,13 +176,13 @@ class TrainModel:
 
 
 	def train(self):
-		out_folder = self.deeplearningProject.dir_trained_models + "/" + self.out_model_name + "_" + self.randomNumeber()
+		out_folder = self.deeplearningProject.dir_trained_models + "/" + self.out_model_name
 
 		timer = Timer()
-		self.deeplearningProject.log("| > Epocas: {}\n| > AI Network: {}\ > Dades Labeled:".format(self.max_epochs, self.backbone_model,self.platgesQueFem))
+		self.deeplearningProject.log("| > Epocas: {}\n| > AI Network: {}".format(self.max_epochs, self.backbone_model))
 		learner = TrainDeepLearningModel(self.in_folder, out_folder, self.max_epochs, self.model_type, self.batch_size, self.arg, self.learning_rate, self.backbone_model, self.pretrained_model, self.validation_percent, self.stop_training, self.freeze)
 
-		self.deeplearningProject.log("| >> Done! - Ha trigat {}".format(timer.stop()))
+		self.deeplearningProject.log("| >> Done! - Ha trigat {}\n+-".format(timer.stop()))
 
 	def randomNumeber(self):
 		return "" + uuid.uuid4().hex[:8]
