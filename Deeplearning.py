@@ -1,8 +1,10 @@
+# encoding: utf-8
 #Generiques
 import os,shutil,sys,time,datetime
 from pathlib import Path
 import uuid
 
+import logging
 
 #Les de ArcGIS
 import arcpy
@@ -20,13 +22,20 @@ class DeeplearningProject:
 	dir_labeled_objects = ""
 	dir_trained_models  = ""
 
+	loggery = None
+
 	def __init__(self, project_path):
 		self.project_path = project_path
 		self.dir_labeled_objects = self.project_path + "/imageChips"
 		self.dir_trained_models = self.project_path + "/models"
 
+		self.loggery = Log(project_path)
+
 	def __str__ (self):
 		return "+------\n| project_path => {}\n| dir_labeled_objects => {}\n| dir_trained_models => {}\n+------".format(self.project_path, self.dir_labeled_objects, self.dir_trained_models)
+
+	def log(self,string):
+		self.loggery.log(string)
 
 
 class ExportLabelObjects:
@@ -74,16 +83,16 @@ class ExportLabelObjects:
 		out_folder = self.deeplearningProject.dir_labeled_objects + "/PASCAL_T" + str(self.tile_size) + "_" + self.image_chip_format + "_" + self.raster_name + "_" + self.randomNumeber()
 		metadata_format = "PASCAL_VOC_rectangles"
 
-		print("+\n| > Exportem PASCAL({}) => tileSize: {}x{} / stride: {}x{}".format(self.image_chip_format, self.tile_size,self.tile_size, self.stride,self.stride))
-		print("| Exporting to... => {}".format(out_folder))
+		self.deeplearningProject.log("+\n| > Exportem PASCAL({}) => tileSize: {}x{} / stride: {}x{}".format(self.image_chip_format, self.tile_size,self.tile_size, self.stride,self.stride))
+		self.deeplearningProject.log("| Exporting to... => {}".format(out_folder))
 		self.export(self.tile_size, self.stride, metadata_format, self.image_chip_format, out_folder)
 
 	def exportKitti(self):
 		out_folder = self.deeplearningProject.dir_labeled_objects + "/KITTI_T" + str(self.tile_size) + "_" + self.image_chip_format + "_" + self.raster_name + "_" + self.randomNumeber()
 		metadata_format = "KITTI_rectangles"
 
-		print("+\n| > Exportem KITTI({}) => tileSize: {}x{} / stride: {}x{}".format(self.image_chip_format, self.tile_size,self.tile_size, self.stride,self.stride))
-		print("| Exporting to... => {}".format(out_folder))
+		self.deeplearningProject.log("+\n| > Exportem KITTI({}) => tileSize: {}x{} / stride: {}x{}".format(self.image_chip_format, self.tile_size,self.tile_size, self.stride,self.stride))
+		self.deeplearningProject.log("| Exporting to... => {}".format(out_folder))
 		self.export(self.tile_size, self.stride, metadata_format, self.image_chip_format, out_folder)
 
 	def export(self, tile_size, stride, metadata_format, img_format, out_folder):
@@ -92,16 +101,11 @@ class ExportLabelObjects:
 
 		ExportTrainingDataForDeepLearning(self.inRaster, out_folder, self.FC_training_data, self.image_chip_format,tile_size, tile_size, stride, stride, self.output_nofeature_tiles, metadata_format, self.start_index, self.classvalue_field, self.buffer_radius, self.in_mask_polygons, self.rotation_angle, self.reference_system, self.processing_mode)
 
-		print('| >> Done! - Ha trigat', timer.stop())
+		self.deeplearningProject.log('| >> Done! - Ha trigat', timer.stop())
 
 
 	def randomNumeber(self):
 		return "" + uuid.uuid4().hex[:8]
-
-	def createDirectory(self, path):
-		if not os.path.exists(path):
-			print ("Created directory in: " + path)
-			os.makedirs(path)
 
 
 
@@ -163,7 +167,8 @@ class TrainModel:
 
 	def model_name(self):
 		labeled_data_info = os.path.splitext(os.path.basename(self.in_folder))[0].split(sep="_")
-		model_name = self.model_type + "_" + self.backbone_model + "_" + labeled_data_info[1] + "_Ep" + str(self.max_epochs) + "_v" + str(self.train_version)
+		#print(labeled_data_info)
+		model_name = self.model_type + "_" + self.backbone_model + "_" + labeled_data_info[1] + "_" + labeled_data_info[3] + "_v" + str(self.train_version) + "_Ep" + str(self.max_epochs)
 
 		return model_name
 
@@ -172,11 +177,10 @@ class TrainModel:
 		out_folder = self.deeplearningProject.dir_trained_models + "/" + self.out_model_name + "_" + self.randomNumeber()
 
 		timer = Timer()
-		print("| > Epocas: {}\n| > AI Network: {}".format(self.max_epochs, self.backbone_model))
+		self.deeplearningProject.log("| > Epocas: {}\n| > AI Network: {}".format(self.max_epochs, self.backbone_model))
 		learner = TrainDeepLearningModel(self.in_folder, out_folder, self.max_epochs, self.model_type, self.batch_size, self.arg, self.learning_rate, self.backbone_model, self.pretrained_model, self.validation_percent, self.stop_training, self.freeze)
-		learner.recorder.plot()
 
-		print('| >> Done! - Ha trigat', timer.stop())
+		self.deeplearningProject.log("| >> Done! - Ha trigat {}{}".format(timer.stop()))
 
 	def randomNumeber(self):
 		return "" + uuid.uuid4().hex[:8]
@@ -208,3 +212,31 @@ class Timer:
 
 	def __str__(self):
 		return str(datetime.timedelta(seconds = self.diff))
+
+
+class Log:
+
+	def __init__(self, path):
+		"""
+		self.createDirectory(path)
+		fileh = logging.FileHandler(path, 'a')
+		formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+		fileh.setFormatter(formatter)
+
+		log = logging.getLogger()  # root logger
+		for hdlr in log.handlers[:]:  # remove all old handlers
+		    log.removeHandler(hdlr)
+		log.addHandler(fileh)      # set the new handler
+		"""
+		#logging.FileHandler(path, 'a')
+		logging.basicConfig(filename="logfilename.log", level=logging.INFO, format='%(message)s')
+
+	def log(self, string):
+		logging.info(string)
+		print(string)
+
+
+	def createDirectory(self, path):
+		if not os.path.exists(path):
+			print ("Created directory in: " + path)
+			os.makedirs(path)

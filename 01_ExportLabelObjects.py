@@ -1,3 +1,4 @@
+# encoding: utf-8
 from Deeplearning import *
 
 project_path = r"E:\Feina_ProjecteGeoAI"
