@@ -136,6 +136,7 @@ class TrainModel:
 	#Per coses de la Class
 	out_model_name = ""
 	train_version = 0
+	platgesQueFem = ""
 
 
 	def __init__(self,deeplearningProject,max_epochs,model_type,learning_rate,pretrained_model,backbone_model,in_folder):
@@ -167,8 +168,9 @@ class TrainModel:
 
 	def model_name(self):
 		labeled_data_info = os.path.splitext(os.path.basename(self.in_folder))[0].split(sep="_")
+		self.platgesQueFem = labeled_data_info[3]
 		#print(labeled_data_info)
-		model_name = self.model_type + "_" + self.backbone_model + "_" + labeled_data_info[1] + "_" + labeled_data_info[3] + "_v" + str(self.train_version) + "_Ep" + str(self.max_epochs)
+		model_name = self.model_type + "_" + self.backbone_model + "_" + labeled_data_info[1] + "_" + self.platgesQueFem + "_v" + str(self.train_version) + "_Ep" + str(self.max_epochs)
 
 		return model_name
 
@@ -177,10 +179,10 @@ class TrainModel:
 		out_folder = self.deeplearningProject.dir_trained_models + "/" + self.out_model_name + "_" + self.randomNumeber()
 
 		timer = Timer()
-		self.deeplearningProject.log("| > Epocas: {}\n| > AI Network: {}".format(self.max_epochs, self.backbone_model))
+		self.deeplearningProject.log("| > Epocas: {}\n| > AI Network: {}\ > Dades Labeled:".format(self.max_epochs, self.backbone_model,self.platgesQueFem))
 		learner = TrainDeepLearningModel(self.in_folder, out_folder, self.max_epochs, self.model_type, self.batch_size, self.arg, self.learning_rate, self.backbone_model, self.pretrained_model, self.validation_percent, self.stop_training, self.freeze)
 
-		self.deeplearningProject.log("| >> Done! - Ha trigat {}{}".format(timer.stop()))
+		self.deeplearningProject.log("| >> Done! - Ha trigat {}".format(timer.stop()))
 
 	def randomNumeber(self):
 		return "" + uuid.uuid4().hex[:8]
