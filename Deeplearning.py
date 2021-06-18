@@ -105,6 +105,77 @@ class ExportLabelObjects:
 
 
 
+class TrainModel:
+	#https://pro.arcgis.com/en/pro-app/2.6/tool-reference/image-analyst/train-deep-learning-model.htm
+
+	deeplearningProject = None
+
+	#Per jugar amb elles
+	in_folder = r"C:\Users\Elatha\Desktop\Projecte_GeoAI\ImageChips"
+	max_epochs = 100
+	model_type = "SSD"
+	learning_rate = "" #0.0003
+	pretrained_model = "" #"C:\\Models\\Pretrained\\vehicles.emd"
+	backbone_model = "RESNET34"
+
+
+	# Per defecte OK
+	freeze = "UNFREEZE_MODEL" #Descheck dona millor resultats pero triga més
+	validation_percent = 30
+	batch_size = 8 #Les imatges que es fan a l'hora contra més alt millor GPU s'ha de tenir. default = 2
+	arg = "grids '[4, 2, 1]';zooms '[0.7, 1.0, 1.3]';ratios '[[1, 1], [1, 0.5], [0.5, 1]]'"
+	stop_training = "STOP_TRAINING"
+
+	#Les definim amb el projecte
+	out_folder = r"C:\Users\Elatha\Desktop\Projecte_GeoAI\Models"
+
+	#Per coses de la Class
+	out_model_name = ""
+	train_version = 0
+
+
+	def __init__(self,deeplearningProject,max_epochs,model_type,learning_rate,pretrained_model,backbone_model,in_folder):
+		self.deeplearningProject = deeplearningProject
+		self.max_epochs = max_epochs
+		self.model_type = model_type
+		self.learning_rate = learning_rate
+		self.pretrained_model = pretrained_model
+		self.backbone_model = backbone_model
+		self.in_folder = in_folder
+		self.out_model_name = self.model_name()
+
+		if self.havePreviousTrainedModel():
+			self.train_version = self.getVersionNumber()
+
+
+	def havePreviousTrainedModel(self):
+		if self.pretrained_model != "":
+			return True
+		else:
+			return False
+
+	def getVersionNumber(self):
+		versionNumber = os.path.splitext(os.path.basename(self.pretrained_model))[0].split(sep="_")[4].replace("v","")
+		actual_version = int(versionNumber)
+		next_version = actual_version + 1
+		#print("Ara: {} => toca la {}".format(actual_version,next_version))
+		return next_version
+
+	def model_name(self):
+		labeled_data_info = os.path.splitext(os.path.basename(self.in_folder))[0].split(sep="_")
+		model_name = self.model_type + "_" + self.backbone_model + "_" + labeled_data_info[1] + "_Ep" + str(self.max_epochs) + "_v" + str(self.train_version)
+
+		return model_name
+
+
+	def train(self):
+		out_folder = self.deeplearningProject.dir_trained_models + "/" + self.out_model_name + "_" + self.randomNumeber()
+		TrainDeepLearningModel(self.in_folder, out_folder, self.max_epochs, self.model_type, self.batch_size, self.arg, self.learning_rate, self.backbone_model, self.pretrained_model, self.validation_percent, self.stop_training, self.freeze)
+
+	def randomNumeber(self):
+		return "" + uuid.uuid4().hex[:8]
+
+
 
 class Timer:
 
