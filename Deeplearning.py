@@ -170,7 +170,13 @@ class TrainModel:
 
 	def train(self):
 		out_folder = self.deeplearningProject.dir_trained_models + "/" + self.out_model_name + "_" + self.randomNumeber()
-		TrainDeepLearningModel(self.in_folder, out_folder, self.max_epochs, self.model_type, self.batch_size, self.arg, self.learning_rate, self.backbone_model, self.pretrained_model, self.validation_percent, self.stop_training, self.freeze)
+
+		timer = Timer()
+		print("| > Epocas: {}\n| > AI Network: {}".format(self.max_epochs, self.backbone_model))
+		learner = TrainDeepLearningModel(self.in_folder, out_folder, self.max_epochs, self.model_type, self.batch_size, self.arg, self.learning_rate, self.backbone_model, self.pretrained_model, self.validation_percent, self.stop_training, self.freeze)
+		learner.recorder.plot()
+
+		print('| >> Done! - Ha trigat', timer.stop())
 
 	def randomNumeber(self):
 		return "" + uuid.uuid4().hex[:8]
